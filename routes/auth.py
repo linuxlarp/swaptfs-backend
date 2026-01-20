@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import json
 import base64
@@ -114,9 +115,13 @@ async def discord_auth(redirect_to: str = "/"):
     """
 
     dev = os.getenv("DEV_MODE", "false").lower() == "true"
+    regex = re.compile(r"^/[^\s]*$")
 
-    if "https://" in redirect_to: ## block external redirects to any domain (since we use /page/page)
-        return HTTPException(status_code=418)
+    if "://" in redirect_to:
+        return HTTPException(status_code=500, detail="External redirects are not allowed")
+    
+    if not regex.fullmatch(redirect_to):
+        return HTTPException(status_code=500, detail="Invalid redirect path")
 
     state_data = {
         "redirect_to": redirect_to,
