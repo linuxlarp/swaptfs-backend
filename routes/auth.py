@@ -115,6 +115,9 @@ async def discord_auth(redirect_to: str = "/"):
 
     dev = os.getenv("DEV_MODE", "false").lower() == "true"
 
+    if "https://" in redirect_to: ## block external redirects to any domain (since we use /page/page)
+        return HTTPException(status_code=418)
+
     state_data = {
         "redirect_to": redirect_to,
         "timestamp": int(time.time())
